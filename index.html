@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Malgun Gothic', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      height: 100vh;
+      box-sizing: border-box;
+      -webkit-user-select: none; user-select: none;
+    }
+
+    #game-header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 500px;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 8px 10px;
+      border-bottom: 2px solid #334155;
+      box-sizing: border-box;
+    }
+    #stage-display { color: #a855f7; } 
+    #score-display { color: #38bdf8; }
+    #hp-display { color: #f43f5e; }
+
+    /* 🛠️ [요청 반영] 상단 콤보 가이드 문구 스타일 변경 */
+    #combo-pouch {
+      margin: 8px 0;
+      min-height: 38px;
+      background: #1e293b;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      border: 1px solid #475569;
+      box-sizing: border-box;
+    }
+    .combo-badge { background: #38bdf8; color: #0f172a; padding: 4px 10px; border-radius: 6px; font-weight: bold; }
+
+    #game-canvas {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      flex: 1;
+      background: linear-gradient(to bottom, #1e293b, #0f172a 80%, #1e3a8a);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 2px solid #334155;
+      box-sizing: border-box;
+      margin-bottom: 5px;
+    }
+
+    .falling-nut {
+      position: absolute;
+      padding: 8px 16px;
+      background-color: #ffffff;
+      color: #0f172a;
+      font-weight: 900;
+      font-size: 14px;
+      border-radius: 25px;
+      box-shadow: 0 4px 15px rgba(255,255,255,0.4);
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    #ocean-floor {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 45px;
+      background: #0284c7;
+      border-top: 4px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      letter-spacing: 2px;
+      z-index: 20;
+    }
+
+    #word-pad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 500px;
+      padding-bottom: 10px;
+      box-sizing: border-box;
+      z-index: 50;
+    }
+
+    .word-card {
+      background-color: #334155;
+      color: #e2e8f0;
+      padding: 14px 0;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #1e293b;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .word-card.selected {
+      background-color: #38bdf8;
+      color: #0f172a;
+      box-shadow: none;
+    }
+
+    #game-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      border-radius: 15px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .start-btn {
+      padding: 15px 50px; font-size: 18px; font-weight: bold;
+      background-color: #38bdf8; color: #0f172a; border: none; border-radius: 10px; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>소화관 베네치아 방어전 🌊</h1>
+  <p>영양소가 바다에 닿기 전 파괴하세요!</p>
+
+  <div id="game-header">
+    <div id="stage-display">STAGE: 1</div>
+    <div id="score-display">SCORE: 0</div>
+    <div id="hp-display">LIFE: ❤️❤️❤️❤️❤️</div>
+  </div>
+
+  <div id="combo-pouch">
+    <span style="color:#38bdf8;">⚠️ [장소 ➔ 소화액 ➔ 효소] 순서대로 터치하세요!</span>
+  </div>
+
+  <div id="game-canvas">
+    <div id="ocean-floor">🌊🌊🌊🌊🌊🌊🌊🌊🌊</div>
+
+    <div id="game-overlay">
+      <h2 id="overlay-msg" style="color:#38bdf8; margin-bottom:20px; text-align:center;">소화 방어전 준비 완료</h2>
+      <button class="start-btn" id="btn-game-start" onclick="realGameStart(); return false;">게임 시작 (START)</button>
+    </div>
+  </div>
+
+  <div id="word-pad">
+    <div class="word-card" data-word="입" onclick="handleCardClick(this); return false;">입</div>
+    <div class="word-card" data-word="침" onclick="handleCardClick(this); return false;">침</div>
+    <div class="word-card" data-word="아밀레이스" onclick="handleCardClick(this); return false;">아밀레이스</div>
+    <div class="word-card" data-word="위" onclick="handleCardClick(this); return false;">위</div>
+    
+    <div class="word-card" data-word="위액" onclick="handleCardClick(this); return false;">위액</div>
+    <div class="word-card" data-word="펩신" onclick="handleCardClick(this); return false;">펩신</div>
+    <div class="word-card" data-word="작은창자" onclick="handleCardClick(this); return false;">작은창자</div>
+    <div class="word-card" data-word="이자액" onclick="handleCardClick(this); return false;">이자액</div>
+    
+    <div class="word-card" data-word="트립신" onclick="handleCardClick(this); return false;">트립신</div>
+    <div class="word-card" data-word="라이페이스" onclick="handleCardClick(this); return false;">라이페이스</div>
+    <div class="word-card" data-word="쓸개즙" onclick="handleCardClick(this); return false;">쓸개즙</div>
+    <div class="word-card" data-word="말테이즈" onclick="handleCardClick(this); return false;">말테이즈</div>
+  </div>
+
+  <script>
+    var currentStage = 1; 
+    var score = 0;
+    var hp = 5;
+    var gameActive = false;
+    var currentCombo = [];
+    var fallingObjects = [];
+    
+    var lastSpawnTime = 0;
+    var spawnInterval = 5500; 
+    var speedMultiplier = 0.45; 
+    var timerId = null;
+
+    var digestionRules = {
+      '녹말': ['입', '침', '아밀레이스'],
+      '단백질': ['위', '위액', '펩신'],
+      '중간 단계 단백질': ['작은창자', '이자액', '트립신'],
+      '지방': ['작은창자', '이자액', '라이페이스'],
+      '엿당': ['작은창자', '이자액', '아밀레이스']
+    };
+
+    var nutrientPool = ['녹말', '단백질', '중간 단계 단백질', '지방', '엿당'];
+
+    // 🛠️ 버튼 및 카드 클릭 리스너 오작동 문제를 근본적으로 도려내기 위한 직결 인라인 함수 정의
+    function realGameStart() {
+      currentStage = 1; score = 0; hp = 5; currentCombo = []; fallingObjects = [];
+      speedMultiplier = 0.45; spawnInterval = 5500;  
+      
+      document.getElementById('stage-display').innerText = "STAGE: 1";
+      document.getElementById('score-display').innerText = "SCORE: 0";
+      document.getElementById('hp-display').innerText = "LIFE: ❤️❤️❤️❤️❤️";
+      resetComboInput(); 
+      
+      var canvas = document.getElementById('game-canvas');
+      var existingItems = canvas.getElementsByClassName('falling-nut');
+      while(existingItems.length > 0) {
+        canvas.removeChild(existingItems[0]);
+      }
+
+      document.getElementById('game-overlay').style.display = 'none';
+      gameActive = true;
+      lastSpawnTime = Date.now();
+
+      if(timerId) clearInterval(timerId);
+      timerId = setInterval(gameLoop, 40);
+    }
+
+    function gameLoop() {
+      if(!gameActive) return;
+      var now = Date.now();
+      
+      if(now - lastSpawnTime >= spawnInterval) {
+        spawnNutrient();
+        lastSpawnTime = now;
+      }
+      updateGamePhysics();
+    }
+
+    function spawnNutrient() {
+      var canvas = document.getElementById('game-canvas');
+      var nutName = nutrientPool[Math.floor(Math.random() * nutrientPool.length)];
+      var nutDiv = document.createElement('div');
+      
+      nutDiv.className = 'falling-nut';
+      nutDiv.innerText = nutName;
+      
+      var canvasWidth = canvas.clientWidth || 350;
+      var randomLeft = Math.floor(Math.random() * (canvasWidth - 150)); 
+      if(randomLeft < 5) randomLeft = 10;
+      
+      nutDiv.style.left = randomLeft + 'px';
+      nutDiv.style.top = '0px';
+      
+      canvas.appendChild(nutDiv);
+      fallingObjects.push({ element: nutDiv, name: nutName, topY: 0 });
+      
+      if (currentStage === 1) {
+        speedMultiplier = 0.45 + (score * 0.008); 
+        spawnInterval = Math.max(4000, 5500 - (score * 15));
+      } else {
+        speedMultiplier = 1.3 + ((score - 100) * 0.035);
+        spawnInterval = Math.max(950, 2100 - ((score - 100) * 40)); 
+      }
+    }
+
+    function updateGamePhysics() {
+      var canvas = document.getElementById('game-canvas');
+      var canvasHeight = canvas.clientHeight || 400;
+      var oceanLine = canvasHeight - 45; 
+
+      for(var i = fallingObjects.length - 1; i >= 0; i--) {
+        var obj = fallingObjects[i];
+        obj.topY += (2.2 * speedMultiplier); 
+        obj.element.style.top = obj.topY + 'px';
+
+        if(obj.topY >= oceanLine) {
+          if(obj.element && obj.element.parentNode) {
+            obj.element.parentNode.removeChild(obj.element);
+          }
+          fallingObjects.splice(i, 1);
+          decreaseHp();
+          resetComboInput();
+        }
+      }
+    }
+
+    // 카드 선택 직결 스위치
+    function handleCardClick(cardElement) {
+      if(!gameActive) return;
+      var word = cardElement.getAttribute('data-word');
+      
+      if(currentCombo.indexOf(word) !== -1) return;
+
+      currentCombo.push(word);
+      cardElement.classList.add('selected');
+
+      var comboPouch = document.getElementById('combo-pouch');
+      comboPouch.innerHTML = '';
+      for(var k = 0; k < currentCombo.length; k++) {
+        comboPouch.innerHTML += '<span class="combo-badge">' + currentCombo[k] + '</span>';
+      }
+
+      if(currentCombo.length === 3) {
+        verifyComboAttack();
+      }
+    }
+
+    function verifyComboAttack() {
+      for(var i = fallingObjects.length - 1; i >= 0; i--) {
+        var targetNut = fallingObjects[i];
+        var requiredElements = digestionRules[targetNut.name];
+
+        if(requiredElements) {
+          var matchCount = 0;
+          if(currentCombo[0] === requiredElements[0] && 
+             currentCombo[1] === requiredElements[1] && 
+             currentCombo[2] === requiredElements[2]) {
+             matchCount = 3;
+          }
+
+          if(matchCount === 3) {
+            if(targetNut.element && targetNut.element.parentNode) {
+              targetNut.element.parentNode.removeChild(targetNut.element);
+            }
+            fallingObjects.splice(i, 1);
+            score += 20;
+            document.getElementById('score-display').innerText = "SCORE: " + score;
+            
+            if (currentStage === 1 && score >= 100) {
+              currentStage = 2;
+              document.getElementById('stage-display').innerText = "STAGE: 2";
+              triggerStageUpEffect();
+            }
+            break; 
+          }
+        }
+      }
+      resetComboInput();
+    }
+
+    function resetComboInput() {
+      currentCombo = [];
+      // 초기 상태 가이드 문구 복구
+      document.getElementById('combo-pouch').innerHTML = '<span style="color:#38bdf8;">⚠️ [장소 ➔ 소화액 ➔ 효소] 순서대로 터치하세요!</span>';
+      
+      var selectedCards = document.getElementsByClassName('word-card selected');
+      while(selectedCards.length > 0) {
+        selectedCards[0].classList.remove('selected');
+      }
+    }
+
+    function triggerStageUpEffect() {
+      var canvas = document.getElementById('game-canvas');
+      var flash = document.createElement('div');
+      flash.setAttribute('style', 'position:absolute; width:100%; height:100%; background:rgba(168,85,247,0.4); top:0; left:0; pointer-events:none; text-align:center; padding-top:100px; font-size:24px; font-weight:bold; color:white; z-index:50;');
+      flash.innerText = "STAGE 2: 가속화 파도 가동!! ⚡";
+      canvas.appendChild(flash);
+      setTimeout(function() { if(flash && flash.parentNode) flash.parentNode.removeChild(flash); }, 1500);
+    }
+
+    function decreaseHp() {
+      hp--;
+      var heartStr = "";
+      for(var i=0; i<hp; i++) heartStr += "❤️";
+      document.getElementById('hp-display').innerText = "LIFE: " + (heartStr || "☠️");
+
+      if(hp <= 0) {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      gameActive = false;
+      if(timerId) clearInterval(timerId);
+      document.getElementById('overlay-msg').innerHTML = "😭 GAME OVER<br><span style='font-size:15px; color:#cbd5e1;'>최종 스테이지: STAGE " + currentStage + "<br>최종 점수: " + score + "점</span>";
+      document.getElementById('game-overlay').style.display = 'flex';
+    }
+  </script>
+</body>
+</html>
