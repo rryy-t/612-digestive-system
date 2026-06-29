@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Malgun Gothic', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: #0f172a;
       color: #f8fafc;
       margin: 0;
-      padding: 8px;
+      padding: 5px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,17 +21,18 @@
       -webkit-user-select: none; user-select: none;
     }
 
-    h1 { font-size: 1.1rem; margin: 2px 0; }
-    p { font-size: 0.75rem; margin: 0 0 4px 0; color: #94a3b8; }
+    /* 상단 타이틀 영역 최소화 */
+    h1 { font-size: 1rem; margin: 2px 0 0 0; text-align: center; }
+    p { font-size: 0.7rem; margin: 0 0 2px 0; color: #94a3b8; text-align: center; }
 
     #game-header {
       display: flex;
       justify-content: space-between;
       width: 100%;
-      max-width: 460px;
-      font-size: 13px;
+      max-width: 440px;
+      font-size: 12px;
       font-weight: bold;
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-bottom: 2px solid #334155;
       box-sizing: border-box;
     }
@@ -40,46 +41,47 @@
     #hp-display { color: #f43f5e; }
 
     #combo-pouch {
-      margin: 4px 0;
-      min-height: 30px;
+      margin: 3px 0;
+      min-height: 26px;
       background: #1e293b;
       width: 100%;
-      max-width: 460px;
+      max-width: 440px;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
       border: 1px solid #475569;
       box-sizing: border-box;
     }
-    .combo-badge { background: #38bdf8; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+    .combo-badge { background: #38bdf8; color: #0f172a; padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 10px; }
 
+    /* 🛠️ 버튼 12개가 무조건 노출되도록 게임 화면 높이를 더 축소 */
     #game-canvas {
       position: relative;
       width: 100%;
-      max-width: 460px;
+      max-width: 440px;
       flex: 1;
-      max-height: 40vh;
+      max-height: 32vh; /* 높이 비율을 더 낮춰 하단 버튼 공간 확보 */
       background: linear-gradient(to bottom, #1e293b, #0f172a 80%, #1e3a8a);
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
       border: 2px solid #334155;
       box-sizing: border-box;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .falling-nut {
       position: absolute;
-      padding: 5px 10px;
+      padding: 4px 8px;
       background-color: #ffffff;
       color: #0f172a;
       font-weight: 900;
-      font-size: 12px;
-      border-radius: 20px;
-      box-shadow: 0 4px 10px rgba(255,255,255,0.3);
+      font-size: 11px;
+      border-radius: 15px;
+      box-shadow: 0 3px 8px rgba(255,255,255,0.3);
       white-space: nowrap;
       z-index: 10;
     }
@@ -89,37 +91,39 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 30px;
+      height: 25px;
       background: #0284c7;
-      border-top: 3px solid #38bdf8;
+      border-top: 2px solid #38bdf8;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 2px;
       z-index: 20;
     }
 
+    /* 🛠️ 확실하게 화면 하단 콤팩트 배치 */
     #word-pad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 5px;
       width: 100%;
-      max-width: 460px;
-      padding-bottom: 8px; 
+      max-width: 440px;
+      padding-bottom: 10px; /* 패드 자체 하단 여백 추가 */
       box-sizing: border-box;
       z-index: 50;
-      margin-top: auto;
+      margin-top: auto; 
     }
 
+    /* 🛠️ 카드 높이를 줄여 3줄이 온전히 노출되도록 수정 */
     .word-card {
       background-color: #334155;
       color: #e2e8f0;
-      padding: 12px 0;
-      font-size: 12px;
+      padding: 10px 0; /* 세로 두께 축소 */
+      font-size: 11px;
       font-weight: bold;
       text-align: center;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       box-shadow: 0 3px 0 #1e293b;
       -webkit-tap-highlight-color: transparent;
@@ -143,19 +147,18 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 10px;
       box-sizing: border-box;
     }
     
-    /* 🛠️ 버튼이 터치 이벤트를 명확히 받도록 가시성 및 터치 영역 수정 */
     .start-btn {
-      padding: 12px 35px; font-size: 16px; font-weight: bold;
-      background-color: #38bdf8; color: #0f172a; border: none; border-radius: 8px; cursor: pointer;
+      padding: 10px 30px; font-size: 14px; font-weight: bold;
+      background-color: #38bdf8; color: #0f172a; border: none; border-radius: 6px; cursor: pointer;
       -webkit-appearance: none; appearance: none;
       -webkit-tap-highlight-color: transparent;
       position: relative;
-      z-index: 110;
+      z-index: 120;
     }
   </style>
 </head>
@@ -178,21 +181,246 @@
     <div id="ocean-floor">🌊🌊🌊🌊🌊🌊🌊🌊🌊</div>
 
     <div id="game-overlay">
-      <h2 id="overlay-msg" style="color:#38bdf8; margin-bottom:15px; text-align:center; font-size: 16px;">소화 방어전 준비 완료</h2>
-      <button class="start-btn" id="btn-game-start" ontouchstart="realGameStart();" onclick="realGameStart();">게임 시작 (START)</button>
+      <h2 id="overlay-msg" style="color:#38bdf8; margin-bottom:10px; text-align:center; font-size: 14px;">소화 방어전 준비 완료</h2>
+      <button class="start-btn" id="btn-game-start">게임 시작 (START)</button>
     </div>
   </div>
 
   <div id="word-pad">
-    <div class="word-card" data-word="입" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">입</div>
-    <div class="word-card" data-word="침" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">침</div>
-    <div class="word-card" data-word="아밀레이스" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">아밀레이스</div>
-    <div class="word-card" data-word="위" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">위</div>
+    <div class="word-card" data-word="입">입</div>
+    <div class="word-card" data-word="침">침</div>
+    <div class="word-card" data-word="아밀레이스">아밀레이스</div>
+    <div class="word-card" data-word="위">위</div>
     
-    <div class="word-card" data-word="위액" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">위액</div>
-    <div class="word-card" data-word="펩신" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">펩신</div>
-    <div class="word-card" data-word="작은창자" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">작은창자</div>
-    <div class="word-card" data-word="이자액" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">이자액</div>
+    <div class="word-card" data-word="위액">위액</div>
+    <div class="word-card" data-word="펩신">펩신</div>
+    <div class="word-card" data-word="작은창자">작은창자</div>
+    <div class="word-card" data-word="이자액">이자액</div>
     
-    <div class="word-card" data-word="트립신" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">트립신</div>
-    <div class="word-card" data-word="라이
+    <div class="word-card" data-word="트립신">트립신</div>
+    <div class="word-card" data-word="라이페이스">라이페이스</div>
+    <div class="word-card" data-word="쓸개즙">쓸개즙</div>
+    <div class="word-card" data-word="말테이즈">말테이즈</div>
+  </div>
+
+  <script>
+    var currentStage = 1; 
+    var score = 0;
+    var hp = 5;
+    var gameActive = false;
+    var currentCombo = [];
+    var fallingObjects = [];
+    
+    var lastSpawnTime = 0;
+    var spawnInterval = 5500; 
+    var speedMultiplier = 0.45; 
+    var timerId = null;
+
+    var digestionRules = {
+      '녹말': ['입', '침', '아밀레이스'],
+      '단백질': ['위', '위액', '펩신'],
+      '중간 단계 단백질': ['작은창자', '이자액', '트립신'],
+      '지방': ['작은창자', '이자액', '라이페이스'],
+      '엿당': ['작은창자', '이자액', '아밀레이스']
+    };
+
+    var nutrientPool = ['녹말', '단백질', '중간 단계 단백질', '지방', '엿당'];
+
+    // 🛠️ [이벤트 수정] iOS/아이패드 환경에 최적화된 하이브리드 리스너 등록
+    window.addEventListener('DOMContentLoaded', function() {
+      var startBtn = document.getElementById('btn-game-start');
+      
+      // 모바일 터치와 PC 클릭 모두 완벽하게 대응하도록 바인딩
+      var isTouch = 'ontouchstart' in window;
+      var startEvent = isTouch ? 'touchstart' : 'click';
+      
+      startBtn.addEventListener(startEvent, function(e) {
+        e.preventDefault();
+        realGameStart();
+      });
+
+      var cards = document.querySelectorAll('.word-card');
+      cards.forEach(function(card) {
+        card.addEventListener(startEvent, function(e) {
+          e.preventDefault();
+          handleCardClick(this);
+        });
+      });
+    });
+
+    function realGameStart() {
+      if (gameActive) return; 
+
+      currentStage = 1; score = 0; hp = 5; currentCombo = []; fallingObjects = [];
+      speedMultiplier = 0.45; spawnInterval = 5500;  
+      
+      document.getElementById('stage-display').innerText = "STAGE: 1";
+      document.getElementById('score-display').innerText = "SCORE: 0";
+      document.getElementById('hp-display').innerText = "LIFE: ❤️❤️❤️❤️❤️";
+      resetComboInput(); 
+      
+      var canvas = document.getElementById('game-canvas');
+      var existingItems = canvas.getElementsByClassName('falling-nut');
+      while(existingItems.length > 0) {
+        canvas.removeChild(existingItems[0]);
+      }
+
+      document.getElementById('game-overlay').style.display = 'none';
+      gameActive = true;
+      lastSpawnTime = Date.now();
+
+      if(timerId) clearInterval(timerId);
+      timerId = setInterval(gameLoop, 40);
+    }
+
+    function gameLoop() {
+      if(!gameActive) return;
+      var now = Date.now();
+      
+      if(now - lastSpawnTime >= spawnInterval) {
+        spawnNutrient();
+        lastSpawnTime = now;
+      }
+      updateGamePhysics();
+    }
+
+    function spawnNutrient() {
+      var canvas = document.getElementById('game-canvas');
+      var nutName = nutrientPool[Math.floor(Math.random() * nutrientPool.length)];
+      var nutDiv = document.createElement('div');
+      
+      nutDiv.className = 'falling-nut';
+      nutDiv.innerText = nutName;
+      
+      var canvasWidth = canvas.clientWidth || 340;
+      var randomLeft = Math.floor(Math.random() * (canvasWidth - 100));
+      if(randomLeft < 5) randomLeft = 10;
+      
+      nutDiv.style.left = randomLeft + 'px';
+      nutDiv.style.top = '0px';
+      
+      canvas.appendChild(nutDiv);
+      fallingObjects.push({ element: nutDiv, name: nutName, topY: 0 });
+      
+      if (currentStage === 1) {
+        speedMultiplier = 0.45 + (score * 0.008); 
+        spawnInterval = Math.max(4000, 5500 - (score * 15));
+      } else {
+        speedMultiplier = 1.3 + ((score - 100) * 0.035);
+        spawnInterval = Math.max(950, 2100 - ((score - 100) * 40)); 
+      }
+    }
+
+    function updateGamePhysics() {
+      var canvas = document.getElementById('game-canvas');
+      var canvasHeight = canvas.clientHeight || 240;
+      var oceanLine = canvasHeight - 25;
+
+      for(var i = fallingObjects.length - 1; i >= 0; i--) {
+        var obj = fallingObjects[i];
+        obj.topY += (2.2 * speedMultiplier); 
+        obj.element.style.top = obj.topY + 'px';
+
+        if(obj.topY >= oceanLine) {
+          if(obj.element && obj.element.parentNode) {
+            obj.element.parentNode.removeChild(obj.element);
+          }
+          fallingObjects.splice(i, 1);
+          decreaseHp();
+          resetComboInput();
+        }
+      }
+    }
+
+    function handleCardClick(cardElement) {
+      if(!gameActive) return;
+      var word = cardElement.getAttribute('data-word');
+      
+      if(currentCombo.indexOf(word) !== -1) return;
+
+      currentCombo.push(word);
+      cardElement.classList.add('selected');
+
+      var comboPouch = document.getElementById('combo-pouch');
+      comboPouch.innerHTML = '';
+      for(var k = 0; k < currentCombo.length; k++) {
+        comboPouch.innerHTML += '<span class="combo-badge">' + currentCombo[k] + '</span>';
+      }
+
+      if(currentCombo.length === 3) {
+        verifyComboAttack();
+      }
+    }
+
+    function verifyComboAttack() {
+      for(var i = fallingObjects.length - 1; i >= 0; i--) {
+        var targetNut = fallingObjects[i];
+        var requiredElements = digestionRules[targetNut.name];
+
+        if(requiredElements) {
+          var matchCount = 0;
+          if(currentCombo[0] === requiredElements[0] && 
+             currentCombo[1] === requiredElements[1] && 
+             currentCombo[2] === requiredElements[2]) {
+             matchCount = 3;
+          }
+
+          if(matchCount === 3) {
+            if(targetNut.element && targetNut.element.parentNode) {
+              targetNut.element.parentNode.removeChild(targetNut.element);
+            }
+            fallingObjects.splice(i, 1);
+            score += 20;
+            document.getElementById('score-display').innerText = "SCORE: " + score;
+            
+            if (currentStage === 1 && score >= 100) {
+              currentStage = 2;
+              document.getElementById('stage-display').innerText = "STAGE: 2";
+              triggerStageUpEffect();
+            }
+            break; 
+          }
+        }
+      }
+      resetComboInput();
+    }
+
+    function resetComboInput() {
+      currentCombo = [];
+      document.getElementById('combo-pouch').innerHTML = '<span style="color:#38bdf8;">⚠️ [장소 ➔ 소화액 ➔ 효소] 순서대로 터치하세요!</span>';
+      
+      var selectedCards = document.getElementsByClassName('word-card selected');
+      while(selectedCards.length > 0) {
+        selectedCards[0].classList.remove('selected');
+      }
+    }
+
+    function triggerStageUpEffect() {
+      var canvas = document.getElementById('game-canvas');
+      var flash = document.createElement('div');
+      flash.setAttribute('style', 'position:absolute; width:100%; height:100%; background:rgba(168,85,247,0.4); top:0; left:0; pointer-events:none; text-align:center; padding-top:40px; font-size:16px; font-weight:bold; color:white; z-index:50;');
+      flash.innerText = "STAGE 2: 가속화 파도 가동!! ⚡";
+      canvas.appendChild(flash);
+      setTimeout(function() { if(flash && flash.parentNode) flash.parentNode.removeChild(flash); }, 1500);
+    }
+
+    function decreaseHp() {
+      hp--;
+      var heartStr = "";
+      for(var i=0; i<hp; i++) heartStr += "❤️";
+      document.getElementById('hp-display').innerText = "LIFE: " + (heartStr || "☠️");
+
+      if(hp <= 0) {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      gameActive = false;
+      if(timerId) clearInterval(timerId);
+      document.getElementById('overlay-msg').innerHTML = "😭 GAME OVER<br><span style='font-size:12px; color:#cbd5e1;'>최종 스테이지: STAGE " + currentStage + "<br>최종 점수: " + score + "점</span>";
+      document.getElementById('game-overlay').style.display = 'flex';
+    }
+  </script>
+</body>
+</html>
