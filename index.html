@@ -57,13 +57,12 @@
     }
     .combo-badge { background: #38bdf8; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
 
-    /* 🛠️ [핵심 수정] 캔버스의 높이가 지나치게 커져 패드를 밀어내지 않도록 최대 높이 고정 */
     #game-canvas {
       position: relative;
       width: 100%;
       max-width: 460px;
       flex: 1;
-      max-height: 40vh; /* 아이패드 세로 크기의 최대 40%까지만 차지하도록 제한 */
+      max-height: 40vh;
       background: linear-gradient(to bottom, #1e293b, #0f172a 80%, #1e3a8a);
       border-radius: 10px;
       overflow: hidden;
@@ -101,7 +100,6 @@
       z-index: 20;
     }
 
-    /* 🛠️ [핵심 수정] 하단 단어 패드가 무조건 화면 최하단에 안정적으로 안착하도록 보장 */
     #word-pad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -111,14 +109,13 @@
       padding-bottom: 8px; 
       box-sizing: border-box;
       z-index: 50;
-      margin-top: auto; /* 남는 여백을 위로 밀어내어 패드를 바닥에 고정 */
+      margin-top: auto;
     }
 
-    /* 🛠️ 버튼 패딩 및 여백 최적화로 3줄(12개) 전체 시인성 확보 */
     .word-card {
       background-color: #334155;
       color: #e2e8f0;
-      padding: 12px 0; /* 터치하기 편하면서도 간결한 높이 */
+      padding: 12px 0;
       font-size: 12px;
       font-weight: bold;
       text-align: center;
@@ -150,11 +147,15 @@
       padding: 10px;
       box-sizing: border-box;
     }
+    
+    /* 🛠️ 버튼이 터치 이벤트를 명확히 받도록 가시성 및 터치 영역 수정 */
     .start-btn {
-      padding: 10px 30px; font-size: 15px; font-weight: bold;
+      padding: 12px 35px; font-size: 16px; font-weight: bold;
       background-color: #38bdf8; color: #0f172a; border: none; border-radius: 8px; cursor: pointer;
       -webkit-appearance: none; appearance: none;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
+      z-index: 110;
     }
   </style>
 </head>
@@ -177,142 +178,21 @@
     <div id="ocean-floor">🌊🌊🌊🌊🌊🌊🌊🌊🌊</div>
 
     <div id="game-overlay">
-      <h2 id="overlay-msg" style="color:#38bdf8; margin-bottom:12px; text-align:center; font-size: 16px;">소화 방어전 준비 완료</h2>
-      <button class="start-btn" id="btn-game-start" onclick="realGameStart(); return false;">게임 시작 (START)</button>
+      <h2 id="overlay-msg" style="color:#38bdf8; margin-bottom:15px; text-align:center; font-size: 16px;">소화 방어전 준비 완료</h2>
+      <button class="start-btn" id="btn-game-start" ontouchstart="realGameStart();" onclick="realGameStart();">게임 시작 (START)</button>
     </div>
   </div>
 
   <div id="word-pad">
-    <div class="word-card" data-word="입" onclick="handleCardClick(this); return false;">입</div>
-    <div class="word-card" data-word="침" onclick="handleCardClick(this); return false;">침</div>
-    <div class="word-card" data-word="아밀레이스" onclick="handleCardClick(this); return false;">아밀레이스</div>
-    <div class="word-card" data-word="위" onclick="handleCardClick(this); return false;">위</div>
+    <div class="word-card" data-word="입" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">입</div>
+    <div class="word-card" data-word="침" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">침</div>
+    <div class="word-card" data-word="아밀레이스" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">아밀레이스</div>
+    <div class="word-card" data-word="위" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">위</div>
     
-    <div class="word-card" data-word="위액" onclick="handleCardClick(this); return false;">위액</div>
-    <div class="word-card" data-word="펩신" onclick="handleCardClick(this); return false;">펩신</div>
-    <div class="word-card" data-word="작은창자" onclick="handleCardClick(this); return false;">작은창자</div>
-    <div class="word-card" data-word="이자액" onclick="handleCardClick(this); return false;">이자액</div>
+    <div class="word-card" data-word="위액" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">위액</div>
+    <div class="word-card" data-word="펩신" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">펩신</div>
+    <div class="word-card" data-word="작은창자" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">작은창자</div>
+    <div class="word-card" data-word="이자액" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">이자액</div>
     
-    <div class="word-card" data-word="트립신" onclick="handleCardClick(this); return false;">트립신</div>
-    <div class="word-card" data-word="라이페이스" onclick="handleCardClick(this); return false;">라이페이스</div>
-    <div class="word-card" data-word="쓸개즙" onclick="handleCardClick(this); return false;">쓸개즙</div>
-    <div class="word-card" data-word="말테이즈" onclick="handleCardClick(this); return false;">말테이즈</div>
-  </div>
-
-  <script>
-    var currentStage = 1; 
-    var score = 0;
-    var hp = 5;
-    var gameActive = false;
-    var currentCombo = [];
-    var fallingObjects = [];
-    
-    var lastSpawnTime = 0;
-    var spawnInterval = 5500; 
-    var speedMultiplier = 0.45; 
-    var timerId = null;
-
-    var digestionRules = {
-      '녹말': ['입', '침', '아밀레이스'],
-      '단백질': ['위', '위액', '펩신'],
-      '중간 단계 단백질': ['작은창자', '이자액', '트립신'],
-      '지방': ['작은창자', '이자액', '라이페이스'],
-      '엿당': ['작은창자', '이자액', '아밀레이스']
-    };
-
-    var nutrientPool = ['녹말', '단백질', '중간 단계 단백질', '지방', '엿당'];
-
-    function realGameStart() {
-      currentStage = 1; score = 0; hp = 5; currentCombo = []; fallingObjects = [];
-      speedMultiplier = 0.45; spawnInterval = 5500;  
-      
-      document.getElementById('stage-display').innerText = "STAGE: 1";
-      document.getElementById('score-display').innerText = "SCORE: 0";
-      document.getElementById('hp-display').innerText = "LIFE: ❤️❤️❤️❤️❤️";
-      resetComboInput(); 
-      
-      var canvas = document.getElementById('game-canvas');
-      var existingItems = canvas.getElementsByClassName('falling-nut');
-      while(existingItems.length > 0) {
-        canvas.removeChild(existingItems[0]);
-      }
-
-      document.getElementById('game-overlay').style.display = 'none';
-      gameActive = true;
-      lastSpawnTime = Date.now();
-
-      if(timerId) clearInterval(timerId);
-      timerId = setInterval(gameLoop, 40);
-    }
-
-    function gameLoop() {
-      if(!gameActive) return;
-      var now = Date.now();
-      
-      if(now - lastSpawnTime >= spawnInterval) {
-        spawnNutrient();
-        lastSpawnTime = now;
-      }
-      updateGamePhysics();
-    }
-
-    function spawnNutrient() {
-      var canvas = document.getElementById('game-canvas');
-      var nutName = nutrientPool[Math.floor(Math.random() * nutrientPool.length)];
-      var nutDiv = document.createElement('div');
-      
-      nutDiv.className = 'falling-nut';
-      nutDiv.innerText = nutName;
-      
-      var canvasWidth = canvas.clientWidth || 350;
-      var randomLeft = Math.floor(Math.random() * (canvasWidth - 110));
-      if(randomLeft < 5) randomLeft = 10;
-      
-      nutDiv.style.left = randomLeft + 'px';
-      nutDiv.style.top = '0px';
-      
-      canvas.appendChild(nutDiv);
-      fallingObjects.push({ element: nutDiv, name: nutName, topY: 0 });
-      
-      if (currentStage === 1) {
-        speedMultiplier = 0.45 + (score * 0.008); 
-        spawnInterval = Math.max(4000, 5500 - (score * 15));
-      } else {
-        speedMultiplier = 1.3 + ((score - 100) * 0.035);
-        spawnInterval = Math.max(950, 2100 - ((score - 100) * 40)); 
-      }
-    }
-
-    function updateGamePhysics() {
-      var canvas = document.getElementById('game-canvas');
-      var canvasHeight = canvas.clientHeight || 300;
-      var oceanLine = canvasHeight - 30;
-
-      for(var i = fallingObjects.length - 1; i >= 0; i--) {
-        var obj = fallingObjects[i];
-        obj.topY += (2.2 * speedMultiplier); 
-        obj.element.style.top = obj.topY + 'px';
-
-        if(obj.topY >= oceanLine) {
-          if(obj.element && obj.element.parentNode) {
-            obj.element.parentNode.removeChild(obj.element);
-          }
-          fallingObjects.splice(i, 1);
-          decreaseHp();
-          resetComboInput();
-        }
-      }
-    }
-
-    function handleCardClick(cardElement) {
-      if(!gameActive) return;
-      var word = cardElement.getAttribute('data-word');
-      
-      if(currentCombo.indexOf(word) !== -1) return;
-
-      currentCombo.push(word);
-      cardElement.classList.add('selected');
-
-      var comboPouch = document.getElementById('combo-pouch');
-      comboPouch.innerHTML = '';
-      for(var k = 0; k
+    <div class="word-card" data-word="트립신" ontouchstart="handleCardClick(this);" onclick="handleCardClick(this);">트립신</div>
+    <div class="word-card" data-word="라이
