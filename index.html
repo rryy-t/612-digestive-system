@@ -14,6 +14,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start; /* 🛠️ 모든 요소를 상단부터 촘촘하게 배치 */
       overflow: hidden;
       height: 100vh;
       height: -webkit-fill-available;
@@ -21,18 +22,18 @@
       -webkit-user-select: none; user-select: none;
     }
 
-    /* 상단 타이틀 영역 최소화 */
-    h1 { font-size: 1rem; margin: 2px 0 0 0; text-align: center; }
-    p { font-size: 0.7rem; margin: 0 0 2px 0; color: #94a3b8; text-align: center; }
+    /* 상단 타이틀 영역 콤팩트화 */
+    h1 { font-size: 0.95rem; margin: 2px 0 0 0; text-align: center; }
+    p { font-size: 0.65rem; margin: 0 0 2px 0; color: #94a3b8; text-align: center; }
 
     #game-header {
       display: flex;
       justify-content: space-between;
       width: 100%;
       max-width: 440px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
-      padding: 3px 6px;
+      padding: 2px 6px;
       border-bottom: 2px solid #334155;
       box-sizing: border-box;
     }
@@ -41,8 +42,8 @@
     #hp-display { color: #f43f5e; }
 
     #combo-pouch {
-      margin: 3px 0;
-      min-height: 26px;
+      margin: 2px 0;
+      min-height: 24px;
       background: #1e293b;
       width: 100%;
       max-width: 440px;
@@ -58,19 +59,18 @@
     }
     .combo-badge { background: #38bdf8; color: #0f172a; padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 10px; }
 
-    /* 🛠️ 버튼 12개가 무조건 노출되도록 게임 화면 높이를 더 축소 */
+    /* 🛠️ 게임 화면이 아래쪽으로 늘어지거나 마진을 크게 주지 않도록 고정 */
     #game-canvas {
       position: relative;
       width: 100%;
       max-width: 440px;
-      flex: 1;
-      max-height: 32vh; /* 높이 비율을 더 낮춰 하단 버튼 공간 확보 */
+      height: 28vh; /* 🛠️ 고정 높이 비율로 설정하여 안정감 확보 */
       background: linear-gradient(to bottom, #1e293b, #0f172a 80%, #1e3a8a);
       border-radius: 8px;
       overflow: hidden;
       border: 2px solid #334155;
       box-sizing: border-box;
-      margin-bottom: 6px;
+      margin-bottom: 4px; /* 🛠️ 버튼 패드와의 간격을 대폭 축소 */
     }
 
     .falling-nut {
@@ -102,24 +102,23 @@
       z-index: 20;
     }
 
-    /* 🛠️ 확실하게 화면 하단 콤팩트 배치 */
+    /* 🛠️ 게임 화면 바로 밑에 빈 공간 없이 착 붙도록 마진 제거 및 배치 수정 */
     #word-pad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
+      gap: 4px;
       width: 100%;
       max-width: 440px;
-      padding-bottom: 10px; /* 패드 자체 하단 여백 추가 */
+      padding-bottom: 5px;
       box-sizing: border-box;
       z-index: 50;
-      margin-top: auto; 
+      margin-top: 0; /* 🛠️ 위로 강제 밀어올리는 마진 제거 */
     }
 
-    /* 🛠️ 카드 높이를 줄여 3줄이 온전히 노출되도록 수정 */
     .word-card {
       background-color: #334155;
       color: #e2e8f0;
-      padding: 10px 0; /* 세로 두께 축소 */
+      padding: 10px 0;
       font-size: 11px;
       font-weight: bold;
       text-align: center;
@@ -226,11 +225,8 @@
 
     var nutrientPool = ['녹말', '단백질', '중간 단계 단백질', '지방', '엿당'];
 
-    // 🛠️ [이벤트 수정] iOS/아이패드 환경에 최적화된 하이브리드 리스너 등록
     window.addEventListener('DOMContentLoaded', function() {
       var startBtn = document.getElementById('btn-game-start');
-      
-      // 모바일 터치와 PC 클릭 모두 완벽하게 대응하도록 바인딩
       var isTouch = 'ontouchstart' in window;
       var startEvent = isTouch ? 'touchstart' : 'click';
       
@@ -313,7 +309,7 @@
 
     function updateGamePhysics() {
       var canvas = document.getElementById('game-canvas');
-      var canvasHeight = canvas.clientHeight || 240;
+      var canvasHeight = canvas.clientHeight || 200;
       var oceanLine = canvasHeight - 25;
 
       for(var i = fallingObjects.length - 1; i >= 0; i--) {
